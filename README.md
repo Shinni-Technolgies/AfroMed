@@ -1,8 +1,11 @@
-# Mantis Free React Material UI Dashboard Template [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Get%20Mantis%20Free%20React%20-%20The%20Most%20Beautiful%20Material-UI%20Designed%20Admin%20Dashboard%20Template%20&url=https://mantisdashboard.com/free&via=codedthemes&hashtags=react,materialui,nextjs,webdev,developers,typescript)
+# AfroMed - Medical Admin Dashboard
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Price](https://img.shields.io/badge/price-FREE-0098f7.svg)](https://github.com/codedthemes/mantis-free-react-admin-template/blob/master/LICENSE)
-[![GitHub package version](https://img.shields.io/github/package-json/v/codedthemes/mantis-free-react-admin-template)](https://github.com/codedthemes/mantis-free-react-admin-template/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.x-61DAFB)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-7.x-646CFF)](https://vitejs.dev/)
+
+AfroMed is a modern medical admin dashboard for doctors, clinics, and healthcare professionals. Built with React, TypeScript, Material UI, and Vite.
 [![Download ZIP](https://img.shields.io/badge/Download-ZIP-blue?style=flat-square&logo=github)](https://codedthemes.com/item/mantis-free-mui-admin-template/)
 [![Join Discord](https://img.shields.io/badge/Join-Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.com/invite/p2E2WhCb6s)
 

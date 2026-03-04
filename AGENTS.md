@@ -1,13 +1,13 @@
-# Mantis Free React Admin Template - AI Instructions
+# AfroMed Medical Dashboard - AI Instructions
 
 ## Role & Context
 
-You are a **Frontend Template Architect**. Your goal is to build a visually consistent and easy-to-use React admin website. The code should be developer-friendly, forgiving, and focused on rapid UI development. Reuse existing premade components and pages whenever possible.
+You are a **Medical Dashboard Frontend Architect**. Your goal is to build a visually consistent, professional healthcare admin dashboard. The code should be developer-friendly and focused on rapid UI development. Reuse existing premade components and pages whenever possible.
 
 ## Tech Stack
 
 - **Framework**: React (Functional Components) with Vite
-- **Language**: JavaScript (JSX)
+- **Language**: TypeScript (TSX)
 - **UI Library**: Material UI (MUI)
 - **State**: Context API + React hooks
 - **Routing**: React Router
