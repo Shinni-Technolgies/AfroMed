@@ -1,12 +1,12 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import jsconfigPaths from 'vite-jsconfig-paths';
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const API_URL = env.VITE_APP_BASE_NAME || '/';
   const PORT = 3000;
+  const srcPath = path.resolve(__dirname, 'src');
 
   return {
     base: API_URL,
@@ -27,11 +27,25 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@ant-design/icons': path.resolve(__dirname, 'node_modules/@ant-design/icons')
-        // Add more aliases as needed
+        '@ant-design/icons': path.resolve(__dirname, 'node_modules/@ant-design/icons'),
+        assets: path.resolve(srcPath, 'assets'),
+        components: path.resolve(srcPath, 'components'),
+        contexts: path.resolve(srcPath, 'contexts'),
+        data: path.resolve(srcPath, 'data'),
+        hooks: path.resolve(srcPath, 'hooks'),
+        layout: path.resolve(srcPath, 'layout'),
+        'menu-items': path.resolve(srcPath, 'menu-items'),
+        pages: path.resolve(srcPath, 'pages'),
+        routes: path.resolve(srcPath, 'routes'),
+        sections: path.resolve(srcPath, 'sections'),
+        themes: path.resolve(srcPath, 'themes'),
+        types: path.resolve(srcPath, 'types'),
+        utils: path.resolve(srcPath, 'utils'),
+        api: path.resolve(srcPath, 'api'),
+        config: path.resolve(srcPath, 'config')
       }
     },
-    plugins: [react(), jsconfigPaths()],
+    plugins: [react()],
     build: {
       chunkSizeWarningLimit: 1000,
       sourcemap: true,

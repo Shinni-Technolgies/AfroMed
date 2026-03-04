@@ -32,7 +32,8 @@
       "menu-items/*": ["src/menu-items/*"],
       "assets/*": ["src/assets/*"],
       "sections/*": ["src/sections/*"],
-      "data/*": ["src/data/*"]
+      "data/*": ["src/data/*"],
+      "types/*": ["src/types/*"]
     }
   },
   "include": ["src"],

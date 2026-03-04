@@ -10,23 +10,17 @@ export default function Footer() {
       sx={{ gap: 1.5, alignItems: 'center', justifyContent: 'space-between', p: '24px 16px 0px', mt: 'auto' }}
     >
       <Typography variant="caption">
-        &copy; All rights reserved{' '}
-        <Link href="https://codedthemes.com/" target="_blank" underline="hover">
-          CodedThemes
-        </Link>
+        &copy; {new Date().getFullYear()} AfroMed. All rights reserved.
       </Typography>
       <Stack direction="row" sx={{ gap: 1.5, alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="https://codedthemes.com/hire-us/" target="_blank" variant="caption" color="text.primary">
-          Hire us
+        <Link href="/help" variant="caption" color="text.primary" underline="hover">
+          Help Center
         </Link>
-        <Link href="https://mui.com/store/license/" target="_blank" variant="caption" color="text.primary">
-          License
+        <Link href="/settings" variant="caption" color="text.primary" underline="hover">
+          Privacy
         </Link>
-        <Link href="https://mui.com/store/terms/" target="_blank" variant="caption" color="text.primary">
+        <Link href="/settings" variant="caption" color="text.primary" underline="hover">
           Terms
-        </Link>
-        <Link href="https://links.codedthemes.com/dAAOP" target="_blank" variant="caption" color="text.primary">
-          Figma Design System
         </Link>
       </Stack>
     </Stack>
