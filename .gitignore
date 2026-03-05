@@ -108,3 +108,8 @@ dist
 
 # wincompare file
 .bak
+
+# Yarn PnP files
+.pnp.*
+.yarnrc.yml
+yarn.lock

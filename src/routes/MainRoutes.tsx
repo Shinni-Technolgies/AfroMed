@@ -18,6 +18,9 @@ const SamplePage = Loadable(lazy(() => import('pages/extra-pages/sample-page')))
 // render - patients
 const Patients = Loadable(lazy(() => import('pages/patients')));
 
+// render - appointments
+const Appointments = Loadable(lazy(() => import('pages/appointments')));
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -56,6 +59,10 @@ const MainRoutes = {
     {
       path: 'patients',
       element: <Patients />
+    },
+    {
+      path: 'appointments',
+      element: <Appointments />
     }
   ]
 };
