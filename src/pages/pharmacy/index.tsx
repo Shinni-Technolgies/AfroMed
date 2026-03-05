@@ -18,42 +18,21 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // project imports
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 import Dot from 'components/@extended/Dot';
+import { useGetMedications, useGetPharmacyStats } from 'api/pharmacy';
+
+// types
+import { Medication } from 'types/models';
 
 // assets
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
 // ==============================|| PHARMACY PAGE ||============================== //
-
-interface Medication {
-  id: string;
-  name: string;
-  category: string;
-  stockQty: number;
-  unitPrice: number;
-  supplier: string;
-  expiryDate: string;
-  status: 'In Stock' | 'Low Stock' | 'Out of Stock';
-}
-
-const medications: Medication[] = [
-  { id: 'MED-2001', name: 'Amoxicillin 500mg', category: 'Antibiotic', stockQty: 1240, unitPrice: 3.50, supplier: 'PharmaCare Ltd', expiryDate: '2026-03-15', status: 'In Stock' },
-  { id: 'MED-2002', name: 'Ibuprofen 400mg', category: 'Analgesic', stockQty: 860, unitPrice: 2.10, supplier: 'MedSource Africa', expiryDate: '2025-11-20', status: 'In Stock' },
-  { id: 'MED-2003', name: 'Metformin 850mg', category: 'Antidiabetic', stockQty: 25, unitPrice: 4.75, supplier: 'GlobalMed Inc', expiryDate: '2025-08-10', status: 'Low Stock' },
-  { id: 'MED-2004', name: 'Oseltamivir 75mg', category: 'Antiviral', stockQty: 0, unitPrice: 12.30, supplier: 'ViralShield Corp', expiryDate: '2025-06-01', status: 'Out of Stock' },
-  { id: 'MED-2005', name: 'Paracetamol 500mg', category: 'Analgesic', stockQty: 2100, unitPrice: 1.20, supplier: 'PharmaCare Ltd', expiryDate: '2026-09-30', status: 'In Stock' },
-  { id: 'MED-2006', name: 'Vitamin D3 1000IU', category: 'Supplement', stockQty: 15, unitPrice: 5.60, supplier: 'NutriHealth SA', expiryDate: '2025-12-25', status: 'Low Stock' },
-  { id: 'MED-2007', name: 'Ciprofloxacin 250mg', category: 'Antibiotic', stockQty: 430, unitPrice: 4.00, supplier: 'MedSource Africa', expiryDate: '2026-01-18', status: 'In Stock' },
-  { id: 'MED-2008', name: 'Acyclovir 200mg', category: 'Antiviral', stockQty: 0, unitPrice: 8.90, supplier: 'ViralShield Corp', expiryDate: '2025-04-12', status: 'Out of Stock' },
-  { id: 'MED-2009', name: 'Glibenclamide 5mg', category: 'Antidiabetic', stockQty: 380, unitPrice: 3.25, supplier: 'GlobalMed Inc', expiryDate: '2026-07-08', status: 'In Stock' },
-  { id: 'MED-2010', name: 'Iron Supplement 325mg', category: 'Supplement', stockQty: 18, unitPrice: 2.80, supplier: 'NutriHealth SA', expiryDate: '2025-10-05', status: 'Low Stock' },
-  { id: 'MED-2011', name: 'Azithromycin 500mg', category: 'Antibiotic', stockQty: 590, unitPrice: 6.40, supplier: 'PharmaCare Ltd', expiryDate: '2026-05-22', status: 'In Stock' },
-  { id: 'MED-2012', name: 'Diclofenac 50mg', category: 'Analgesic', stockQty: 0, unitPrice: 1.95, supplier: 'MedSource Africa', expiryDate: '2025-02-28', status: 'Out of Stock' }
-];
 
 const headCells = [
   { id: 'id', align: 'left' as const, label: 'Med ID' },
@@ -94,6 +73,9 @@ export default function PharmacyPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
+  const { medications, medicationsLoading } = useGetMedications();
+  const { stats, statsLoading } = useGetPharmacyStats();
+
   const filteredMedications = useMemo(() => {
     return medications.filter((med) => {
       const matchesSearch =
@@ -103,7 +85,7 @@ export default function PharmacyPage() {
       const matchesStatus = statusFilter === 'All' || med.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [search, statusFilter]);
+  }, [medications, search, statusFilter]);
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -119,16 +101,31 @@ export default function PharmacyPage() {
 
       {/* row 2 - stat cards */}
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Total Medications" count="486" percentage={4.2} extra="18" />
+        <AnalyticEcommerce
+          title="Total Medications"
+          count={statsLoading ? '—' : String(stats?.totalMedications ?? 0)}
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="In Stock" count="412" percentage={3.1} color="success" extra="10" />
+        <AnalyticEcommerce
+          title="In Stock"
+          count={statsLoading ? '—' : String(stats?.inStock ?? 0)}
+          color="success"
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Low Stock" count="38" percentage={8.7} isLoss color="warning" extra="6" />
+        <AnalyticEcommerce
+          title="Low Stock"
+          count={statsLoading ? '—' : String(stats?.lowStock ?? 0)}
+          color="warning"
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Out of Stock" count="12" percentage={2.4} isLoss color="error" extra="3" />
+        <AnalyticEcommerce
+          title="Out of Stock"
+          count={statsLoading ? '—' : String(stats?.outOfStock ?? 0)}
+          color="error"
+        />
       </Grid>
 
       <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
@@ -191,7 +188,14 @@ export default function PharmacyPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredMedications.map((row) => (
+                {medicationsLoading && (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center">
+                      <CircularProgress size={32} sx={{ my: 2 }} />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!medicationsLoading && filteredMedications.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
                     <TableCell>{row.id}</TableCell>
                     <TableCell>{row.name}</TableCell>
@@ -205,7 +209,7 @@ export default function PharmacyPage() {
                     </TableCell>
                   </TableRow>
                 ))}
-                {filteredMedications.length === 0 && (
+                {!medicationsLoading && filteredMedications.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={8} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>

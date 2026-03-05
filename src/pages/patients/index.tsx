@@ -18,39 +18,21 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // project imports
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 import Dot from 'components/@extended/Dot';
+import { useGetPatients, useGetPatientStats } from 'api/patients';
+
+// types
+import { Patient } from 'types/models';
 
 // assets
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
 // ==============================|| PATIENTS PAGE ||============================== //
-
-interface Patient {
-  id: string;
-  name: string;
-  age: number;
-  gender: string;
-  contact: string;
-  status: 'Active' | 'Discharged' | 'Critical';
-  lastVisit: string;
-}
-
-const patients: Patient[] = [
-  { id: 'PT-1001', name: 'Amina Okafor', age: 34, gender: 'Female', contact: '+234 801 234 5678', status: 'Active', lastVisit: '2024-12-15' },
-  { id: 'PT-1002', name: 'Kwame Mensah', age: 52, gender: 'Male', contact: '+233 244 567 890', status: 'Critical', lastVisit: '2024-12-18' },
-  { id: 'PT-1003', name: 'Fatima Diallo', age: 28, gender: 'Female', contact: '+221 77 345 6789', status: 'Active', lastVisit: '2024-12-10' },
-  { id: 'PT-1004', name: 'Tendai Moyo', age: 45, gender: 'Male', contact: '+263 71 234 5678', status: 'Discharged', lastVisit: '2024-11-28' },
-  { id: 'PT-1005', name: 'Ngozi Eze', age: 61, gender: 'Female', contact: '+234 803 456 7890', status: 'Active', lastVisit: '2024-12-17' },
-  { id: 'PT-1006', name: 'Ousmane Ba', age: 39, gender: 'Male', contact: '+221 78 901 2345', status: 'Critical', lastVisit: '2024-12-19' },
-  { id: 'PT-1007', name: 'Aisha Mohammed', age: 23, gender: 'Female', contact: '+234 805 678 9012', status: 'Active', lastVisit: '2024-12-14' },
-  { id: 'PT-1008', name: 'Kofi Asante', age: 70, gender: 'Male', contact: '+233 209 876 543', status: 'Discharged', lastVisit: '2024-11-20' },
-  { id: 'PT-1009', name: 'Zainab Traore', age: 41, gender: 'Female', contact: '+223 76 543 2109', status: 'Active', lastVisit: '2024-12-12' },
-  { id: 'PT-1010', name: 'Chinedu Nwosu', age: 56, gender: 'Male', contact: '+234 807 890 1234', status: 'Discharged', lastVisit: '2024-12-01' }
-];
 
 const headCells = [
   { id: 'id', align: 'left' as const, label: 'Patient ID' },
@@ -90,6 +72,9 @@ export default function PatientsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
+  const { patients, patientsLoading } = useGetPatients();
+  const { stats, statsLoading } = useGetPatientStats();
+
   const filteredPatients = useMemo(() => {
     return patients.filter((patient) => {
       const matchesSearch =
@@ -99,7 +84,7 @@ export default function PatientsPage() {
       const matchesStatus = statusFilter === 'All' || patient.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [search, statusFilter]);
+  }, [patients, search, statusFilter]);
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -115,16 +100,30 @@ export default function PatientsPage() {
 
       {/* row 2 - stat cards */}
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Total Patients" count="1,284" percentage={8.5} extra="64" />
+        <AnalyticEcommerce
+          title="Total Patients"
+          count={statsLoading ? '—' : String(stats?.totalPatients ?? 0)}
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="New This Month" count="48" percentage={12.2} extra="5" />
+        <AnalyticEcommerce
+          title="New This Month"
+          count={statsLoading ? '—' : String(stats?.newThisMonth ?? 0)}
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Active Cases" count="312" percentage={5.1} isLoss color="warning" extra="16" />
+        <AnalyticEcommerce
+          title="Active Cases"
+          count={statsLoading ? '—' : String(stats?.activeCases ?? 0)}
+          color="warning"
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Discharged" count="97" percentage={15.3} color="success" extra="12" />
+        <AnalyticEcommerce
+          title="Discharged"
+          count={statsLoading ? '—' : String(stats?.discharged ?? 0)}
+          color="success"
+        />
       </Grid>
 
       <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
@@ -187,7 +186,14 @@ export default function PatientsPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredPatients.map((row) => (
+                {patientsLoading && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center">
+                      <CircularProgress size={32} sx={{ my: 2 }} />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!patientsLoading && filteredPatients.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
                     <TableCell>{row.id}</TableCell>
                     <TableCell>{row.name}</TableCell>
@@ -200,7 +206,7 @@ export default function PatientsPage() {
                     <TableCell>{row.lastVisit}</TableCell>
                   </TableRow>
                 ))}
-                {filteredPatients.length === 0 && (
+                {!patientsLoading && filteredPatients.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>

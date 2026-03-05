@@ -19,41 +19,21 @@ import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Rating from '@mui/material/Rating';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // project imports
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 import Dot from 'components/@extended/Dot';
+import { useGetDoctors, useGetDoctorStats } from 'api/doctors';
+
+// types
+import { Doctor, Specialty } from 'types/models';
 
 // assets
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 
 // ==============================|| DOCTORS PAGE ||============================== //
-
-type Specialty = 'Cardiology' | 'Neurology' | 'Orthopedics' | 'Pediatrics' | 'General Medicine' | 'Dermatology' | 'Oncology' | 'Ophthalmology';
-
-interface Doctor {
-  id: string;
-  name: string;
-  specialty: Specialty;
-  contact: string;
-  experience: number;
-  status: 'Available' | 'On Duty' | 'On Leave';
-  rating: number;
-}
-
-const doctors: Doctor[] = [
-  { id: 'DR-2001', name: 'Dr. Amara Osei', specialty: 'Cardiology', contact: '+233 244 100 2001', experience: 14, status: 'On Duty', rating: 4.8 },
-  { id: 'DR-2002', name: 'Dr. Emeka Nwankwo', specialty: 'Neurology', contact: '+234 801 200 3002', experience: 20, status: 'Available', rating: 4.9 },
-  { id: 'DR-2003', name: 'Dr. Fatoumata Camara', specialty: 'Pediatrics', contact: '+224 622 300 4003', experience: 9, status: 'On Duty', rating: 4.7 },
-  { id: 'DR-2004', name: 'Dr. Thabo Ndlovu', specialty: 'Orthopedics', contact: '+27 82 400 5004', experience: 16, status: 'Available', rating: 4.6 },
-  { id: 'DR-2005', name: 'Dr. Halima Yusuf', specialty: 'Dermatology', contact: '+254 722 500 6005', experience: 7, status: 'On Leave', rating: 4.5 },
-  { id: 'DR-2006', name: 'Dr. Kwabena Adjei', specialty: 'Oncology', contact: '+233 209 600 7006', experience: 22, status: 'On Duty', rating: 4.9 },
-  { id: 'DR-2007', name: 'Dr. Nneka Obiora', specialty: 'General Medicine', contact: '+234 803 700 8007', experience: 11, status: 'Available', rating: 4.4 },
-  { id: 'DR-2008', name: 'Dr. Moussa Diop', specialty: 'Ophthalmology', contact: '+221 77 800 9008', experience: 18, status: 'On Duty', rating: 4.8 },
-  { id: 'DR-2009', name: 'Dr. Chidinma Eke', specialty: 'Cardiology', contact: '+234 805 900 1009', experience: 13, status: 'Available', rating: 4.7 },
-  { id: 'DR-2010', name: 'Dr. Sekou Touré', specialty: 'Neurology', contact: '+223 76 100 2010', experience: 25, status: 'On Leave', rating: 4.6 }
-];
 
 const specialties: Specialty[] = ['Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics', 'General Medicine', 'Dermatology', 'Oncology', 'Ophthalmology'];
 
@@ -95,6 +75,9 @@ export default function DoctorsPage() {
   const [search, setSearch] = useState('');
   const [specialtyFilter, setSpecialtyFilter] = useState('All');
 
+  const { doctors, doctorsLoading } = useGetDoctors();
+  const { stats, statsLoading } = useGetDoctorStats();
+
   const filteredDoctors = useMemo(() => {
     return doctors.filter((doctor) => {
       const matchesSearch =
@@ -104,7 +87,7 @@ export default function DoctorsPage() {
       const matchesSpecialty = specialtyFilter === 'All' || doctor.specialty === specialtyFilter;
       return matchesSearch && matchesSpecialty;
     });
-  }, [search, specialtyFilter]);
+  }, [doctors, search, specialtyFilter]);
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -120,16 +103,30 @@ export default function DoctorsPage() {
 
       {/* row 2 - stat cards */}
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Total Doctors" count="86" percentage={4.2} extra="3" />
+        <AnalyticEcommerce
+          title="Total Doctors"
+          count={statsLoading ? '—' : String(stats?.totalDoctors ?? 0)}
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="On Duty" count="34" percentage={6.1} extra="2" />
+        <AnalyticEcommerce
+          title="On Duty"
+          count={statsLoading ? '—' : String(stats?.onDuty ?? 0)}
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="On Leave" count="8" percentage={2.5} isLoss color="warning" extra="1" />
+        <AnalyticEcommerce
+          title="On Leave"
+          count={statsLoading ? '—' : String(stats?.onLeave ?? 0)}
+          color="warning"
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Specialists" count="52" percentage={3.8} color="success" extra="4" />
+        <AnalyticEcommerce
+          title="Specialists"
+          count={statsLoading ? '—' : String(stats?.specialists ?? 0)}
+          color="success"
+        />
       </Grid>
 
       <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
@@ -194,7 +191,14 @@ export default function DoctorsPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredDoctors.map((row) => (
+                {doctorsLoading && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center">
+                      <CircularProgress size={32} sx={{ my: 2 }} />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!doctorsLoading && filteredDoctors.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
                     <TableCell>{row.id}</TableCell>
                     <TableCell>{row.name}</TableCell>
@@ -214,7 +218,7 @@ export default function DoctorsPage() {
                     </TableCell>
                   </TableRow>
                 ))}
-                {filteredDoctors.length === 0 && (
+                {!doctorsLoading && filteredDoctors.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>

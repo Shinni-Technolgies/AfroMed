@@ -19,44 +19,21 @@ import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // project imports
 import MainCard from 'components/MainCard';
 import AnalyticEcommerce from 'components/cards/statistics/AnalyticEcommerce';
 import Dot from 'components/@extended/Dot';
+import { useGetAppointments, useGetAppointmentStats } from 'api/appointments';
+
+// types
+import { Appointment, AppointmentType } from 'types/models';
 
 // assets
 import { CalendarOutlined, SearchOutlined } from '@ant-design/icons';
 
 // ==============================|| APPOINTMENTS PAGE ||============================== //
-
-type AppointmentType = 'Checkup' | 'Follow-up' | 'Emergency' | 'Consultation';
-type AppointmentStatus = 'Scheduled' | 'Completed' | 'Cancelled' | 'In Progress';
-
-interface Appointment {
-  id: string;
-  patientName: string;
-  doctor: string;
-  department: string;
-  dateTime: string;
-  type: AppointmentType;
-  status: AppointmentStatus;
-}
-
-const appointments: Appointment[] = [
-  { id: 'APT-2001', patientName: 'Amina Okafor', doctor: 'Dr. Emeka Obi', department: 'Cardiology', dateTime: '2024-12-20 09:00', type: 'Checkup', status: 'Scheduled' },
-  { id: 'APT-2002', patientName: 'Kwame Mensah', doctor: 'Dr. Ama Serwaa', department: 'Neurology', dateTime: '2024-12-20 09:30', type: 'Follow-up', status: 'In Progress' },
-  { id: 'APT-2003', patientName: 'Fatima Diallo', doctor: 'Dr. Ibrahima Ndiaye', department: 'Obstetrics', dateTime: '2024-12-20 10:00', type: 'Consultation', status: 'Scheduled' },
-  { id: 'APT-2004', patientName: 'Tendai Moyo', doctor: 'Dr. Chipo Nyathi', department: 'Orthopedics', dateTime: '2024-12-19 14:00', type: 'Follow-up', status: 'Completed' },
-  { id: 'APT-2005', patientName: 'Ngozi Eze', doctor: 'Dr. Emeka Obi', department: 'Cardiology', dateTime: '2024-12-20 11:00', type: 'Emergency', status: 'Scheduled' },
-  { id: 'APT-2006', patientName: 'Ousmane Ba', doctor: 'Dr. Mariama Camara', department: 'Dermatology', dateTime: '2024-12-18 15:30', type: 'Checkup', status: 'Completed' },
-  { id: 'APT-2007', patientName: 'Aisha Mohammed', doctor: 'Dr. Yusuf Abdullahi', department: 'Pediatrics', dateTime: '2024-12-20 13:00', type: 'Consultation', status: 'Scheduled' },
-  { id: 'APT-2008', patientName: 'Kofi Asante', doctor: 'Dr. Ama Serwaa', department: 'Neurology', dateTime: '2024-12-17 10:30', type: 'Follow-up', status: 'Cancelled' },
-  { id: 'APT-2009', patientName: 'Zainab Traore', doctor: 'Dr. Ibrahima Ndiaye', department: 'Obstetrics', dateTime: '2024-12-20 14:30', type: 'Checkup', status: 'Scheduled' },
-  { id: 'APT-2010', patientName: 'Chinedu Nwosu', doctor: 'Dr. Chipo Nyathi', department: 'Orthopedics', dateTime: '2024-12-19 09:00', type: 'Emergency', status: 'Completed' },
-  { id: 'APT-2011', patientName: 'Halima Bello', doctor: 'Dr. Yusuf Abdullahi', department: 'Pediatrics', dateTime: '2024-12-16 11:00', type: 'Checkup', status: 'Cancelled' },
-  { id: 'APT-2012', patientName: 'Sekou Konate', doctor: 'Dr. Mariama Camara', department: 'Dermatology', dateTime: '2024-12-20 15:00', type: 'Consultation', status: 'In Progress' }
-];
 
 const headCells = [
   { id: 'id', align: 'left' as const, label: 'Appointment ID' },
@@ -75,7 +52,7 @@ const typeColorMap: Record<AppointmentType, 'default' | 'primary' | 'error' | 'i
   Consultation: 'info'
 };
 
-function AppointmentStatus({ status }: { status: Appointment['status'] }) {
+function AppointmentStatusDot({ status }: { status: Appointment['status'] }) {
   let color: 'success' | 'warning' | 'error' | 'primary';
   switch (status) {
     case 'Scheduled':
@@ -106,6 +83,9 @@ export default function AppointmentsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
+  const { appointments, appointmentsLoading } = useGetAppointments();
+  const { stats, statsLoading } = useGetAppointmentStats();
+
   const filteredAppointments = useMemo(() => {
     return appointments.filter((appt) => {
       const matchesSearch =
@@ -116,7 +96,7 @@ export default function AppointmentsPage() {
       const matchesStatus = statusFilter === 'All' || appt.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [search, statusFilter]);
+  }, [appointments, search, statusFilter]);
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -132,16 +112,30 @@ export default function AppointmentsPage() {
 
       {/* row 2 - stat cards */}
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Today's Appointments" count="24" percentage={4.2} extra="3" />
+        <AnalyticEcommerce
+          title="Today's Appointments"
+          count={statsLoading ? '—' : String(stats?.todayAppointments ?? 0)}
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Upcoming" count="156" percentage={10.8} extra="12" />
+        <AnalyticEcommerce
+          title="Upcoming"
+          count={statsLoading ? '—' : String(stats?.upcoming ?? 0)}
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Completed" count="1,843" percentage={6.3} color="success" extra="42" />
+        <AnalyticEcommerce
+          title="Completed"
+          count={statsLoading ? '—' : String(stats?.completed ?? 0)}
+          color="success"
+        />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <AnalyticEcommerce title="Cancelled" count="32" percentage={2.1} isLoss color="error" extra="4" />
+        <AnalyticEcommerce
+          title="Cancelled"
+          count={statsLoading ? '—' : String(stats?.cancelled ?? 0)}
+          color="error"
+        />
       </Grid>
 
       <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
@@ -205,7 +199,14 @@ export default function AppointmentsPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredAppointments.map((row) => (
+                {appointmentsLoading && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center">
+                      <CircularProgress size={32} sx={{ my: 2 }} />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!appointmentsLoading && filteredAppointments.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
                     <TableCell>{row.id}</TableCell>
                     <TableCell>{row.patientName}</TableCell>
@@ -216,11 +217,11 @@ export default function AppointmentsPage() {
                       <Chip label={row.type} color={typeColorMap[row.type]} size="small" variant="outlined" />
                     </TableCell>
                     <TableCell>
-                      <AppointmentStatus status={row.status} />
+                      <AppointmentStatusDot status={row.status} />
                     </TableCell>
                   </TableRow>
                 ))}
-                {filteredAppointments.length === 0 && (
+                {!appointmentsLoading && filteredAppointments.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>
