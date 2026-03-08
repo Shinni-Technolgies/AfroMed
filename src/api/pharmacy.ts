@@ -1,15 +1,16 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { Medication, PharmacyStats, ApiListResponse } from 'types/models';
+import { orgFetcher, API_BASE } from './fetcher';
 
 // ==============================|| API - PHARMACY ||============================== //
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
 export function useGetMedications() {
-  const { data, error, isLoading } = useSWR<ApiListResponse<Medication>>(`${API_BASE}/pharmacy/medications`, fetcher);
+  const orgId = sessionStorage.getItem('org_id');
+  const { data, error, isLoading } = useSWR<ApiListResponse<Medication>>(
+    orgId ? `${API_BASE}/pharmacy/medications` : null,
+    orgFetcher
+  );
 
   const memoizedValue = useMemo(
     () => ({
@@ -25,7 +26,11 @@ export function useGetMedications() {
 }
 
 export function useGetPharmacyStats() {
-  const { data, error, isLoading } = useSWR<PharmacyStats>(`${API_BASE}/pharmacy/stats`, fetcher);
+  const orgId = sessionStorage.getItem('org_id');
+  const { data, error, isLoading } = useSWR<PharmacyStats>(
+    orgId ? `${API_BASE}/pharmacy/stats` : null,
+    orgFetcher
+  );
 
   const memoizedValue = useMemo(
     () => ({

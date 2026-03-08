@@ -1,14 +1,39 @@
 // ==============================|| DATA MODELS - TYPESCRIPT INTERFACES ||============================== //
 
+// ---- Organization ----
+export interface Organization {
+  org_id: string;
+  name: string;
+  slug: string;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  logo_url: string | null;
+}
+
 // ---- Patients ----
 export interface Patient {
   id: string;
+  firstName: string;
+  lastName: string;
   name: string;
-  age: number;
-  gender: string;
-  contact: string;
-  status: 'Active' | 'Discharged' | 'Critical';
-  lastVisit: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other';
+  bloodType: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  medicalRecordNumber: string | null;
+  emergencyContactName: string | null;
+  emergencyContactPhone: string | null;
+  allergies: string | null;
+  notes: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PatientStats {
@@ -19,17 +44,21 @@ export interface PatientStats {
 }
 
 // ---- Appointments ----
-export type AppointmentType = 'Checkup' | 'Follow-up' | 'Emergency' | 'Consultation';
-export type AppointmentStatus = 'Scheduled' | 'Completed' | 'Cancelled' | 'In Progress';
+export type AppointmentVisitType = 'new_patient' | 'follow_up' | 'emergency' | 'routine' | 'consultation';
+export type AppointmentStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
 
 export interface Appointment {
   id: string;
   patientName: string;
   doctor: string;
-  department: string;
+  department: string | null;
   dateTime: string;
-  type: AppointmentType;
+  durationMin: number;
+  type: AppointmentVisitType;
   status: AppointmentStatus;
+  reason: string | null;
+  notes: string | null;
+  createdAt: string;
 }
 
 export interface AppointmentStats {
@@ -40,17 +69,21 @@ export interface AppointmentStats {
 }
 
 // ---- Pharmacy / Medications ----
-export type MedicationStatus = 'In Stock' | 'Low Stock' | 'Out of Stock';
-
 export interface Medication {
   id: string;
   name: string;
-  category: string;
-  stockQty: number;
-  unitPrice: number;
-  supplier: string;
-  expiryDate: string;
-  status: MedicationStatus;
+  genericName: string | null;
+  category: string | null;
+  dosageForm: string | null;
+  strength: string | null;
+  manufacturer: string | null;
+  requiresPrescription: boolean;
+  isActive: boolean;
+  stockQty: number | null;
+  reorderLevel: number | null;
+  unitPrice: number | null;
+  expiryDate: string | null;
+  batchNumber: string | null;
 }
 
 export interface PharmacyStats {
@@ -60,45 +93,44 @@ export interface PharmacyStats {
   outOfStock: number;
 }
 
-// ---- Health Records ----
-export type RecordType = 'Lab Result' | 'Prescription' | 'Medical Report' | 'Imaging' | 'Discharge Summary';
-export type RecordStatus = 'Active' | 'Archived';
-
+// ---- Health Records (Medical Records) ----
 export interface HealthRecord {
   id: string;
   patientName: string;
-  recordType: RecordType;
-  doctor: string;
-  dateCreated: string;
-  status: RecordStatus;
+  providerName: string;
+  chiefComplaint: string | null;
+  historyOfPresentIllness: string | null;
+  examinationFindings: string | null;
+  treatmentPlan: string | null;
+  notes: string | null;
+  appointmentId: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface HealthRecordStats {
   totalRecords: number;
-  labResults: number;
+  diagnoses: number;
+  vitals: number;
   prescriptions: number;
-  medicalReports: number;
 }
 
-// ---- Doctors ----
-export type Specialty =
-  | 'Cardiology'
-  | 'Neurology'
-  | 'Orthopedics'
-  | 'Pediatrics'
-  | 'General Medicine'
-  | 'Dermatology'
-  | 'Oncology'
-  | 'Ophthalmology';
-
+// ---- Doctors (Users with doctor role) ----
 export interface Doctor {
   id: string;
   name: string;
-  specialty: Specialty;
-  contact: string;
-  experience: number;
-  status: 'Available' | 'On Duty' | 'On Leave';
-  rating: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  specialty: string;
+  jobTitle: string | null;
+  licenseNumber: string | null;
+  avatarUrl: string | null;
+  isActive: boolean;
+  departmentId: string | null;
+  departmentName: string | null;
+  createdAt: string;
 }
 
 export interface DoctorStats {

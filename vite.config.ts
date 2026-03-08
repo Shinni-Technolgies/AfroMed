@@ -13,7 +13,13 @@ export default defineConfig(({ mode }) => {
     server: {
       open: true,
       port: PORT,
-      host: true
+      host: true,
+      proxy: {
+        '/api': {
+          target: env.VITE_API_BACKEND_URL || 'http://localhost:8080',
+          changeOrigin: true,
+        },
+      },
     },
     preview: {
       open: true,

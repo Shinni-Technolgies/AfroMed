@@ -1,15 +1,16 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { Appointment, AppointmentStats, ApiListResponse } from 'types/models';
+import { orgFetcher, API_BASE } from './fetcher';
 
 // ==============================|| API - APPOINTMENTS ||============================== //
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
 export function useGetAppointments() {
-  const { data, error, isLoading } = useSWR<ApiListResponse<Appointment>>(`${API_BASE}/appointments`, fetcher);
+  const orgId = sessionStorage.getItem('org_id');
+  const { data, error, isLoading } = useSWR<ApiListResponse<Appointment>>(
+    orgId ? `${API_BASE}/appointments` : null,
+    orgFetcher
+  );
 
   const memoizedValue = useMemo(
     () => ({
@@ -25,7 +26,11 @@ export function useGetAppointments() {
 }
 
 export function useGetAppointmentStats() {
-  const { data, error, isLoading } = useSWR<AppointmentStats>(`${API_BASE}/appointments/stats`, fetcher);
+  const orgId = sessionStorage.getItem('org_id');
+  const { data, error, isLoading } = useSWR<AppointmentStats>(
+    orgId ? `${API_BASE}/appointments/stats` : null,
+    orgFetcher
+  );
 
   const memoizedValue = useMemo(
     () => ({
