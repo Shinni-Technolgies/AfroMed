@@ -30,6 +30,9 @@ const Doctors = Loadable(lazy(() => import('pages/doctors')));
 // render - health records
 const HealthRecords = Loadable(lazy(() => import('pages/health-records')));
 
+// render - laboratory
+const Laboratory = Loadable(lazy(() => import('pages/laboratory')));
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -84,6 +87,10 @@ const MainRoutes = {
     {
       path: 'health-records',
       element: <HealthRecords />
+    },
+    {
+      path: 'laboratory',
+      element: <Laboratory />
     }
   ]
 };

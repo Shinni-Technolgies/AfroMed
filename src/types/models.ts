@@ -140,6 +140,66 @@ export interface DoctorStats {
   specialists: number;
 }
 
+// ---- Laboratory ----
+export type LabOrderStatus = 'ordered' | 'collected' | 'in_progress' | 'completed' | 'cancelled';
+export type LabOrderPriority = 'normal' | 'urgent' | 'stat';
+
+export interface LabTest {
+  id: string;
+  name: string;
+  category: string | null;
+  description: string | null;
+  normalRange: string | null;
+  unit: string | null;
+  cost: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LabOrder {
+  id: string;
+  patientId: string;
+  patientName: string | null;
+  orderedBy: string;
+  orderedByName: string | null;
+  appointmentId: string | null;
+  testId: string;
+  testName: string | null;
+  status: LabOrderStatus;
+  priority: LabOrderPriority;
+  notes: string | null;
+  orderedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LabResult {
+  id: string;
+  orderId: string;
+  patientName: string | null;
+  testName: string | null;
+  resultValue: string;
+  unit: string | null;
+  referenceRange: string | null;
+  isAbnormal: boolean;
+  performedBy: string | null;
+  performedByName: string | null;
+  verifiedBy: string | null;
+  verifiedByName: string | null;
+  notes: string | null;
+  resultedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LabStats {
+  totalTests: number;
+  totalOrders: number;
+  pending: number;
+  completed: number;
+}
+
 // ---- Generic API response wrapper ----
 export interface ApiListResponse<T> {
   data: T[];
