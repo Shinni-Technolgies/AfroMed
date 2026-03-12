@@ -5,18 +5,18 @@ WORKDIR /app
 
 # Install dependencies first (leverages Docker layer caching)
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy source files needed for the build
 COPY index.html favicon.svg vite.config.ts tsconfig.json tsconfig.node.json ./
 COPY src/ src/
 
-# Accept VITE_* variables as build args so they are embedded by Vite
-# without hardcoding an .env file into the image.
-ARG VITE_APP_VERSION=v1.0.0
-ARG VITE_APP_NAME=AfroMed Dashboard
-ARG VITE_APP_BASE_NAME=
-ARG VITE_API_BASE_URL=/api
+# VITE_* build args — no defaults hardcoded.
+# Pass values at build time via docker-compose or --build-arg.
+ARG VITE_APP_VERSION
+ARG VITE_APP_NAME
+ARG VITE_APP_BASE_NAME
+ARG VITE_API_BASE_URL
 
 RUN npm run build
 
