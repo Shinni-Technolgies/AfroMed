@@ -36,7 +36,6 @@ import { CalendarOutlined, SearchOutlined } from '@ant-design/icons';
 // ==============================|| APPOINTMENTS PAGE ||============================== //
 
 const headCells = [
-  { id: 'id', align: 'left' as const, label: 'Appointment ID' },
   { id: 'patientName', align: 'left' as const, label: 'Patient Name' },
   { id: 'doctor', align: 'left' as const, label: 'Doctor' },
   { id: 'department', align: 'left' as const, label: 'Department' },
@@ -91,7 +90,6 @@ export default function AppointmentsPage() {
       const matchesSearch =
         search === '' ||
         appt.patientName.toLowerCase().includes(search.toLowerCase()) ||
-        appt.id.toLowerCase().includes(search.toLowerCase()) ||
         appt.doctor.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === 'All' || appt.status === statusFilter;
       return matchesSearch && matchesStatus;
@@ -201,14 +199,13 @@ export default function AppointmentsPage() {
               <TableBody>
                 {appointmentsLoading && (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={6} align="center">
                       <CircularProgress size={32} sx={{ my: 2 }} />
                     </TableCell>
                   </TableRow>
                 )}
                 {!appointmentsLoading && filteredAppointments.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
-                    <TableCell>{row.id}</TableCell>
                     <TableCell>{row.patientName}</TableCell>
                     <TableCell>{row.doctor}</TableCell>
                     <TableCell>{row.department}</TableCell>
@@ -223,7 +220,7 @@ export default function AppointmentsPage() {
                 ))}
                 {!appointmentsLoading && filteredAppointments.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={6} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>
                         No appointments found
                       </Typography>

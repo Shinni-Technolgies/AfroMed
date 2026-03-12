@@ -35,7 +35,6 @@ import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 // ==============================|| PATIENTS PAGE ||============================== //
 
 const headCells = [
-  { id: 'id', align: 'left' as const, label: 'Patient ID' },
   { id: 'name', align: 'left' as const, label: 'Name' },
   { id: 'age', align: 'right' as const, label: 'Age' },
   { id: 'gender', align: 'left' as const, label: 'Gender' },
@@ -79,8 +78,7 @@ export default function PatientsPage() {
     return patients.filter((patient) => {
       const matchesSearch =
         search === '' ||
-        patient.name.toLowerCase().includes(search.toLowerCase()) ||
-        patient.id.toLowerCase().includes(search.toLowerCase());
+        patient.name.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === 'All' || patient.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -188,14 +186,13 @@ export default function PatientsPage() {
               <TableBody>
                 {patientsLoading && (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={6} align="center">
                       <CircularProgress size={32} sx={{ my: 2 }} />
                     </TableCell>
                   </TableRow>
                 )}
                 {!patientsLoading && filteredPatients.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
-                    <TableCell>{row.id}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell align="right">{row.age}</TableCell>
                     <TableCell>{row.gender}</TableCell>
@@ -208,7 +205,7 @@ export default function PatientsPage() {
                 ))}
                 {!patientsLoading && filteredPatients.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={6} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>
                         No patients found
                       </Typography>

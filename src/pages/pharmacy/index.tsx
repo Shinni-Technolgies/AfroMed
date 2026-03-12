@@ -35,7 +35,6 @@ import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 // ==============================|| PHARMACY PAGE ||============================== //
 
 const headCells = [
-  { id: 'id', align: 'left' as const, label: 'Med ID' },
   { id: 'name', align: 'left' as const, label: 'Medication Name' },
   { id: 'category', align: 'left' as const, label: 'Category' },
   { id: 'stockQty', align: 'right' as const, label: 'Stock Qty' },
@@ -80,8 +79,7 @@ export default function PharmacyPage() {
     return medications.filter((med) => {
       const matchesSearch =
         search === '' ||
-        med.name.toLowerCase().includes(search.toLowerCase()) ||
-        med.id.toLowerCase().includes(search.toLowerCase());
+        med.name.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === 'All' || med.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -190,14 +188,13 @@ export default function PharmacyPage() {
               <TableBody>
                 {medicationsLoading && (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={7} align="center">
                       <CircularProgress size={32} sx={{ my: 2 }} />
                     </TableCell>
                   </TableRow>
                 )}
                 {!medicationsLoading && filteredMedications.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
-                    <TableCell>{row.id}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.category}</TableCell>
                     <TableCell align="right">{row.stockQty.toLocaleString()}</TableCell>
@@ -211,7 +208,7 @@ export default function PharmacyPage() {
                 ))}
                 {!medicationsLoading && filteredMedications.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={7} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>
                         No medications found
                       </Typography>

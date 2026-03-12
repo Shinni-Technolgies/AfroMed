@@ -35,7 +35,6 @@ import { CloudUploadOutlined, SearchOutlined } from '@ant-design/icons';
 // ==============================|| HEALTH RECORDS PAGE ||============================== //
 
 const headCells = [
-  { id: 'id', align: 'left' as const, label: 'Record ID' },
   { id: 'patientName', align: 'left' as const, label: 'Patient Name' },
   { id: 'recordType', align: 'left' as const, label: 'Record Type' },
   { id: 'doctor', align: 'left' as const, label: 'Doctor' },
@@ -65,8 +64,7 @@ export default function HealthRecordsPage() {
     return records.filter((record) => {
       const matchesSearch =
         search === '' ||
-        record.patientName.toLowerCase().includes(search.toLowerCase()) ||
-        record.id.toLowerCase().includes(search.toLowerCase());
+        record.patientName.toLowerCase().includes(search.toLowerCase());
       const matchesType = typeFilter === 'All' || record.recordType === typeFilter;
       return matchesSearch && matchesType;
     });
@@ -176,14 +174,13 @@ export default function HealthRecordsPage() {
               <TableBody>
                 {recordsLoading && (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={5} align="center">
                       <CircularProgress size={32} sx={{ my: 2 }} />
                     </TableCell>
                   </TableRow>
                 )}
                 {!recordsLoading && filteredRecords.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
-                    <TableCell>{row.id}</TableCell>
                     <TableCell>{row.patientName}</TableCell>
                     <TableCell>{row.recordType}</TableCell>
                     <TableCell>{row.doctor}</TableCell>
@@ -195,7 +192,7 @@ export default function HealthRecordsPage() {
                 ))}
                 {!recordsLoading && filteredRecords.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={5} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>
                         No records found
                       </Typography>

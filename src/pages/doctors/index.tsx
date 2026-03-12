@@ -38,7 +38,6 @@ import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 const specialties: Specialty[] = ['Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics', 'General Medicine', 'Dermatology', 'Oncology', 'Ophthalmology'];
 
 const headCells = [
-  { id: 'id', align: 'left' as const, label: 'Doctor ID' },
   { id: 'name', align: 'left' as const, label: 'Name' },
   { id: 'specialty', align: 'left' as const, label: 'Specialty' },
   { id: 'contact', align: 'left' as const, label: 'Contact' },
@@ -82,8 +81,7 @@ export default function DoctorsPage() {
     return doctors.filter((doctor) => {
       const matchesSearch =
         search === '' ||
-        doctor.name.toLowerCase().includes(search.toLowerCase()) ||
-        doctor.id.toLowerCase().includes(search.toLowerCase());
+        doctor.name.toLowerCase().includes(search.toLowerCase());
       const matchesSpecialty = specialtyFilter === 'All' || doctor.specialty === specialtyFilter;
       return matchesSearch && matchesSpecialty;
     });
@@ -193,14 +191,13 @@ export default function DoctorsPage() {
               <TableBody>
                 {doctorsLoading && (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={6} align="center">
                       <CircularProgress size={32} sx={{ my: 2 }} />
                     </TableCell>
                   </TableRow>
                 )}
                 {!doctorsLoading && filteredDoctors.map((row) => (
                   <TableRow hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }} key={row.id}>
-                    <TableCell>{row.id}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.specialty}</TableCell>
                     <TableCell>{row.contact}</TableCell>
@@ -220,7 +217,7 @@ export default function DoctorsPage() {
                 ))}
                 {!doctorsLoading && filteredDoctors.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} align="center">
+                    <TableCell colSpan={6} align="center">
                       <Typography color="text.secondary" sx={{ py: 2 }}>
                         No doctors found
                       </Typography>
