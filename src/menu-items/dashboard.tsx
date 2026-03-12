@@ -5,7 +5,8 @@ import {
   CalendarOutlined,
   MedicineBoxOutlined,
   HeartOutlined,
-  ExperimentOutlined
+  ExperimentOutlined,
+  DollarOutlined
 } from '@ant-design/icons';
 
 // types
@@ -18,7 +19,8 @@ const icons = {
   CalendarOutlined,
   MedicineBoxOutlined,
   HeartOutlined,
-  ExperimentOutlined
+  ExperimentOutlined,
+  DollarOutlined
 };
 
 // ==============================|| MENU ITEMS - MEDICAL DASHBOARD ||============================== //
@@ -74,6 +76,14 @@ const dashboard: MenuGroup = {
       type: 'item',
       url: '/laboratory',
       icon: icons.ExperimentOutlined,
+      breadcrumbs: true
+    },
+    {
+      id: 'billing',
+      title: 'Billing',
+      type: 'item',
+      url: '/billing',
+      icon: icons.DollarOutlined,
       breadcrumbs: true
     }
   ]

@@ -200,6 +200,67 @@ export interface LabStats {
   completed: number;
 }
 
+// ---- Billing ----
+export type InvoiceStatus = 'draft' | 'issued' | 'paid' | 'partially_paid' | 'overdue' | 'cancelled' | 'refunded';
+export type InvoiceItemType = 'consultation' | 'procedure' | 'medication' | 'lab_test' | 'room_charge' | 'other';
+export type PaymentMethod = 'cash' | 'card' | 'bank_transfer' | 'mobile_money' | 'insurance' | 'other';
+export type PaymentStatus = 'completed' | 'pending' | 'failed' | 'refunded';
+
+export interface Invoice {
+  id: string;
+  patientId: string;
+  patientName: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
+  appointmentId: string | null;
+  invoiceNumber: string;
+  status: InvoiceStatus;
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  amountPaid: number;
+  currency: string;
+  dueDate: string | null;
+  notes: string | null;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InvoiceItem {
+  id: string;
+  invoiceId: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  itemType: InvoiceItemType | null;
+  createdAt: string;
+}
+
+export interface Payment {
+  id: string;
+  invoiceId: string;
+  invoiceNumber: string | null;
+  patientName: string | null;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  referenceNumber: string | null;
+  status: PaymentStatus;
+  receivedBy: string | null;
+  paidAt: string;
+  notes: string | null;
+  createdAt: string;
+}
+
+export interface BillingStats {
+  totalInvoices: number;
+  totalRevenue: number;
+  outstanding: number;
+  overdue: number;
+}
+
 // ---- Generic API response wrapper ----
 export interface ApiListResponse<T> {
   data: T[];
