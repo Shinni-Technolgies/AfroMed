@@ -12,6 +12,7 @@ const pharmacyRouter = require('./routes/pharmacy');
 const healthRecordsRouter = require('./routes/health-records');
 const laboratoryRouter = require('./routes/laboratory');
 const billingRouter = require('./routes/billing');
+const adminRouter = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -42,6 +43,7 @@ app.use('/api/pharmacy', (req, res, next) => { if (!UUID_RE.test(req.headers['x-
 app.use('/api/health-records', (req, res, next) => { if (!UUID_RE.test(req.headers['x-org-id'])) return res.status(400).json({ error: 'Missing or invalid x-org-id header' }); req.orgId = req.headers['x-org-id']; next(); }, healthRecordsRouter);
 app.use('/api/laboratory', (req, res, next) => { if (!UUID_RE.test(req.headers['x-org-id'])) return res.status(400).json({ error: 'Missing or invalid x-org-id header' }); req.orgId = req.headers['x-org-id']; next(); }, laboratoryRouter);
 app.use('/api/billing', (req, res, next) => { if (!UUID_RE.test(req.headers['x-org-id'])) return res.status(400).json({ error: 'Missing or invalid x-org-id header' }); req.orgId = req.headers['x-org-id']; next(); }, billingRouter);
+app.use('/api/admin', (req, res, next) => { if (!UUID_RE.test(req.headers['x-org-id'])) return res.status(400).json({ error: 'Missing or invalid x-org-id header' }); req.orgId = req.headers['x-org-id']; next(); }, adminRouter);
 
 // API docs — available at http://localhost:8080/api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
