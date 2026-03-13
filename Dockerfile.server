@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install production dependencies only
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps
+
+# Copy server source code
+COPY server/ server/
+
+# The server reads configuration from environment variables at runtime.
+# Do NOT copy .env — variables are injected via docker-compose.
+EXPOSE 8080
+
+CMD ["node", "server/index.js"]
