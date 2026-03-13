@@ -6,7 +6,6 @@ import ThemeOption from './theme';
 import { extendPaletteWithChannels } from 'utils/colorUtils';
 
 const greyAscent = ['#fafafa', '#bfbfbf', '#434343', '#1f1f1f'];
-const greyDarkAscent = ['#fafafa', '#bfbfbf', '#434343', '#1f1f1f'];
 
 // ==============================|| GREY COLORS BUILDER ||============================== //
 
@@ -45,7 +44,7 @@ function buildDarkGrey() {
   ];
   let greyConstant = ['#121212', '#1a1a2e'];
 
-  return [...greyPrimary, ...greyDarkAscent, ...greyConstant];
+  return [...greyPrimary, ...greyAscent, ...greyConstant];
 }
 
 // ==============================|| DEFAULT THEME - PALETTE ||============================== //
