@@ -172,7 +172,7 @@ function UsersTab({ users, loading }: { users: AdminUser[]; loading: boolean }) 
                 <TableCell>
                   <Stack direction="row" sx={{ gap: 1.5, alignItems: 'center' }}>
                     <Avatar sx={{ width: 32, height: 32, fontSize: '0.875rem' }} src={row.avatarUrl || undefined}>
-                      {row.firstName[0]}{row.lastName[0]}
+                      {(row.firstName?.[0] || '')}{(row.lastName?.[0] || '')}
                     </Avatar>
                     <Box>
                       <Typography variant="subtitle2">{row.name}</Typography>

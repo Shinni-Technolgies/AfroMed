@@ -3,6 +3,15 @@ const { orgQuery } = require('../db');
 
 const router = express.Router();
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAX_ROLES = 50;
+
+function validateRoleIds(roleIds) {
+  if (!Array.isArray(roleIds)) return false;
+  if (roleIds.length > MAX_ROLES) return false;
+  return roleIds.every((id) => typeof id === 'string' && UUID_RE.test(id));
+}
+
 // ============================================================================
 // Users
 // ============================================================================
@@ -103,6 +112,7 @@ router.post('/users', async (req, res) => {
 
     // Assign roles if provided
     if (Array.isArray(roleIds) && roleIds.length > 0) {
+      if (!validateRoleIds(roleIds)) return res.status(400).json({ error: 'roleIds must be an array of valid UUIDs (max 50)' });
       const values = roleIds.map((rid, i) => `($1, $${i + 2})`).join(', ');
       await orgQuery(req.orgId, `INSERT INTO core.user_roles (user_id, role_id) VALUES ${values}`, [user.user_id, ...roleIds]);
     }
@@ -138,6 +148,7 @@ router.put('/users/:id', async (req, res) => {
 
     // Update roles if provided
     if (Array.isArray(roleIds)) {
+      if (roleIds.length > 0 && !validateRoleIds(roleIds)) return res.status(400).json({ error: 'roleIds must be an array of valid UUIDs (max 50)' });
       await orgQuery(req.orgId, 'DELETE FROM core.user_roles WHERE user_id = $1', [req.params.id]);
       if (roleIds.length > 0) {
         const values = roleIds.map((rid, i) => `($1, $${i + 2})`).join(', ');
@@ -216,7 +227,7 @@ router.put('/roles/:id', async (req, res) => {
            is_active = COALESCE($5, is_active)
        WHERE org_id = $1 AND role_id = $2
        RETURNING *`,
-      [req.orgId, req.params.id, name, description !== undefined ? description : null, isActive]
+      [req.orgId, req.params.id, name, description || null, isActive]
     );
     if (result.rowCount === 0) return res.status(404).json({ error: 'Role not found' });
     res.json({ id: result.rows[0].role_id });
