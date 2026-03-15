@@ -266,3 +266,54 @@ export interface ApiListResponse<T> {
   data: T[];
   total: number;
 }
+
+// ---- Admin (Core Schema Management) ----
+export interface AdminUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  name: string;
+  phone: string | null;
+  avatarUrl: string | null;
+  jobTitle: string | null;
+  licenseNumber: string | null;
+  specialization: string | null;
+  isActive: boolean;
+  lastLoginAt: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
+  roles: { roleId: string; roleName: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminRole {
+  id: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  userCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminDepartment {
+  id: string;
+  name: string;
+  description: string | null;
+  phone: string | null;
+  isActive: boolean;
+  userCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  newThisMonth: number;
+  totalRoles: number;
+  totalDepartments: number;
+}
