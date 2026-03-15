@@ -10,6 +10,7 @@ import Search from './Search';
 import Profile from './Profile';
 import Notification from './Notification';
 import MobileSection from './MobileSection';
+import ThemeToggle from './ThemeToggle';
 
 // icons
 import { CalendarOutlined } from '@ant-design/icons';
@@ -34,6 +35,7 @@ export default function HeaderContent(): JSX.Element {
       </Tooltip>
 
       <Notification />
+      <ThemeToggle />
       {!downLG && <Profile />}
       {downLG && <MobileSection />}
     </>
