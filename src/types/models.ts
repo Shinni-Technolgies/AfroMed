@@ -267,6 +267,81 @@ export interface ApiListResponse<T> {
   total: number;
 }
 
+// ---- Inventory (Non-Pharmacy) ----
+export type InventoryCategory = 'IT' | 'Furniture' | 'Kitchen' | 'Cleaning' | 'HVAC' | 'Security' | 'Office Supplies' | 'Other';
+export type InventoryItemStatus = 'active' | 'in_repair' | 'retired' | 'disposed';
+export type InventoryCondition = 'excellent' | 'good' | 'fair' | 'poor';
+export type RoomType = 'office' | 'storage' | 'server_room' | 'conference' | 'break_room' | 'mechanical' | 'restroom' | 'lobby' | 'other';
+export type RoomStatus = 'available' | 'occupied' | 'maintenance' | 'decommissioned';
+export type MaintenanceType = 'preventive' | 'corrective' | 'emergency' | 'inspection';
+export type MaintenancePriority = 'low' | 'medium' | 'high' | 'critical';
+export type MaintenanceStatus = 'open' | 'in_progress' | 'completed' | 'cancelled';
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  category: InventoryCategory;
+  assetTag: string | null;
+  serialNumber: string | null;
+  building: string | null;
+  floor: string | null;
+  roomNumber: string | null;
+  status: InventoryItemStatus;
+  condition: InventoryCondition;
+  purchaseDate: string | null;
+  purchaseCost: number | null;
+  warrantyExpiry: string | null;
+  assignedDepartment: string | null;
+  assignedTo: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InventoryRoom {
+  id: string;
+  roomNumber: string;
+  name: string;
+  building: string;
+  floor: string;
+  roomType: RoomType;
+  capacity: number | null;
+  areaSqFt: number | null;
+  status: RoomStatus;
+  department: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MaintenanceLog {
+  id: string;
+  assetId: string | null;
+  assetName: string | null;
+  type: MaintenanceType;
+  priority: MaintenancePriority;
+  status: MaintenanceStatus;
+  assignedTo: string | null;
+  scheduledDate: string | null;
+  completedDate: string | null;
+  cost: number | null;
+  description: string | null;
+  resolution: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InventoryStats {
+  totalAssets: number;
+  activeAssets: number;
+  inRepair: number;
+  retired: number;
+  totalRooms: number;
+  availableRooms: number;
+  openWorkOrders: number;
+  completedWorkOrders: number;
+}
+
 // ---- Admin (Core Schema Management) ----
 export interface AdminUser {
   id: string;
