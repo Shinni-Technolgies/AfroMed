@@ -71,7 +71,7 @@ function ConditionDot({ condition }: { condition: InventoryCondition }) {
   };
   return (
     <Stack direction="row" sx={{ gap: 1, alignItems: 'center' }}>
-      <Dot color={colorMap[condition] ?? 'success'} size={undefined} variant={undefined} sx={undefined} />
+      <Dot color={colorMap[condition] ?? 'success'} />
       <Typography sx={{ textTransform: 'capitalize' }}>{condition}</Typography>
     </Stack>
   );
@@ -108,7 +108,7 @@ function PriorityDot({ priority }: { priority: MaintenancePriority }) {
   };
   return (
     <Stack direction="row" sx={{ gap: 1, alignItems: 'center' }}>
-      <Dot color={colorMap[priority] ?? 'success'} size={undefined} variant={undefined} sx={undefined} />
+      <Dot color={colorMap[priority] ?? 'success'} />
       <Typography sx={{ textTransform: 'capitalize' }}>{priority}</Typography>
     </Stack>
   );
@@ -244,9 +244,6 @@ export default function InventoryPage() {
         <AnalyticEcommerce
           title="Total Assets"
           count={statsLoading ? '—' : String(stats?.totalAssets ?? 0)}
-          percentage={undefined}
-          isLoss={undefined}
-          extra={undefined}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
@@ -254,9 +251,6 @@ export default function InventoryPage() {
           title="Active Assets"
           count={statsLoading ? '—' : String(stats?.activeAssets ?? 0)}
           color="success"
-          percentage={undefined}
-          isLoss={undefined}
-          extra={undefined}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
@@ -264,9 +258,6 @@ export default function InventoryPage() {
           title="Available Rooms"
           count={statsLoading ? '—' : String(stats?.availableRooms ?? 0)}
           color="primary"
-          percentage={undefined}
-          isLoss={undefined}
-          extra={undefined}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
@@ -274,9 +265,6 @@ export default function InventoryPage() {
           title="Open Work Orders"
           count={statsLoading ? '—' : String(stats?.openWorkOrders ?? 0)}
           color="warning"
-          percentage={undefined}
-          isLoss={undefined}
-          extra={undefined}
         />
       </Grid>
 
@@ -284,7 +272,7 @@ export default function InventoryPage() {
 
       {/* Tabs + Tables */}
       <Grid size={12}>
-        <MainCard content={false} boxShadow={undefined} subheader={undefined} darkTitle={undefined} elevation={undefined} secondary={undefined} shadow={undefined} title={undefined} codeHighlight={undefined} codeString={undefined} ref={undefined}>
+        <MainCard content={false}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
             <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>
               <Tab label="Assets" />
