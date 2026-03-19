@@ -36,6 +36,9 @@ const Laboratory = Loadable(lazy(() => import('pages/laboratory')));
 // render - billing
 const Billing = Loadable(lazy(() => import('pages/billing')));
 
+// render - inventory
+const Inventory = Loadable(lazy(() => import('pages/inventory')));
+
 // render - admin
 const Admin = Loadable(lazy(() => import('pages/admin')));
 
@@ -101,6 +104,10 @@ const MainRoutes = {
     {
       path: 'billing',
       element: <Billing />
+    },
+    {
+      path: 'inventory',
+      element: <Inventory />
     },
     {
       path: 'admin',
