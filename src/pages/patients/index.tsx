@@ -11,6 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import Tooltip from '@mui/material/Tooltip';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -47,7 +48,8 @@ import {
   AlertOutlined,
   TeamOutlined,
   DownOutlined,
-  UpOutlined
+  UpOutlined,
+  PrinterOutlined
 } from '@ant-design/icons';
 
 // ==============================|| PATIENTS PAGE ||============================== //
@@ -120,11 +122,74 @@ function ProfileRow({
 
 // ---- Inline expanded profile row ----
 
+function printPatientProfile(patient: Patient) {
+  const addressParts = [patient.address, patient.city, patient.state, patient.country].filter(Boolean);
+  const age = patient.dateOfBirth ? calcAge(patient.dateOfBirth) : null;
+
+  const row = (label: string, value: string | null | undefined) =>
+    value ? `<tr><td style="padding:4px 12px 4px 0;color:#666;width:160px">${label}</td><td style="padding:4px 0">${value}</td></tr>` : '';
+
+  const section = (title: string, content: string) =>
+    `<div style="margin-bottom:20px"><h3 style="margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#555;border-bottom:1px solid #ddd;padding-bottom:4px">${title}</h3><table style="border-collapse:collapse;font-size:13px;width:100%">${content}</table></div>`;
+
+  const html = `<!DOCTYPE html><html><head><title>Patient Profile – ${patient.name}</title>
+  <style>body{font-family:Arial,sans-serif;padding:32px;color:#222;max-width:760px;margin:auto}h1{font-size:20px;margin:0 0 4px}@media print{button{display:none}}</style>
+  </head><body>
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #ddd">
+    <div style="width:56px;height:56px;border-radius:50%;background:#1976d2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;flex-shrink:0">${patient.firstName?.[0]?.toUpperCase() ?? '?'}</div>
+    <div>
+      <h1>${patient.name}</h1>
+      ${patient.medicalRecordNumber ? `<div style="color:#666;font-size:12px">MRN: ${patient.medicalRecordNumber}</div>` : ''}
+      <span style="display:inline-block;margin-top:4px;padding:2px 10px;border-radius:12px;font-size:11px;background:${patient.isActive ? '#e8f5e9' : '#f5f5f5'};color:${patient.isActive ? '#2e7d32' : '#666'}">${patient.isActive ? 'Active' : 'Inactive'}</span>
+    </div>
+  </div>
+  ${section('Personal Information',
+    row('Date of Birth', patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : null) +
+    row('Age', age !== null ? `${age} years` : null) +
+    row('Gender', patient.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : null)
+  )}
+  ${section('Medical Information',
+    row('Blood Type', patient.bloodType) +
+    row('Allergies', patient.allergies ?? 'None reported') +
+    row('Clinical Notes', patient.notes)
+  )}
+  ${section('Contact Information',
+    row('Phone', patient.phone) +
+    row('Email', patient.email) +
+    row('Address', addressParts.length ? addressParts.join(', ') : null)
+  )}
+  ${(patient.emergencyContactName || patient.emergencyContactPhone) ? section('Emergency Contact',
+    row('Name', patient.emergencyContactName) +
+    row('Phone', patient.emergencyContactPhone)
+  ) : ''}
+  <script>window.onload=()=>{window.print();window.onafterprint=()=>window.close();}<\/script>
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  }
+}
+
 function PatientProfilePanel({ patient }: { patient: Patient }) {
   const addressParts = [patient.address, patient.city, patient.state, patient.country].filter(Boolean);
 
   return (
     <Box sx={{ p: 3, bgcolor: 'background.default' }}>
+      {/* Print button */}
+      <Stack direction="row" sx={{ justifyContent: 'flex-end', mb: 2 }}>
+        <Tooltip title="Export to PDF">
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<PrinterOutlined />}
+            onClick={() => printPatientProfile(patient)}
+          >
+            Print / Export PDF
+          </Button>
+        </Tooltip>
+      </Stack>
       <Grid container spacing={3}>
         {/* Identity card */}
         <Grid size={{ xs: 12, md: 3 }}>
