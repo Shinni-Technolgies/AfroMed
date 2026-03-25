@@ -28,6 +28,9 @@ on:
           - db-to-edu
         default: auto
 
+permissions:
+  contents: read
+
 jobs:
   detect-and-sync:
     name: Detect drift & open PRs
