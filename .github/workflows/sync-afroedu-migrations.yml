@@ -1,0 +1,150 @@
+# Keeps the /migrations folder in sync between AfroEdu and AfroEdu-db.
+#
+# The workflow runs on a schedule and can be triggered manually.
+# It checks both directions and opens PRs in whichever repo is behind.
+#
+# Required secret: REPO_SYNC_TOKEN – a GitHub PAT (classic or fine-grained)
+# with read/write access to both Shinni-Technolgies/AfroEdu and
+# Shinni-Technolgies/AfroEdu-db (contents + pull-requests scopes).
+#
+# NOTE: This workflow is hosted in the AfroMed repo so that all migration
+# sync workflows live in one place. It operates on AfroEdu / AfroEdu-db
+# repos entirely through the REPO_SYNC_TOKEN.
+
+name: Sync AfroEdu ↔ AfroEdu-db Migrations
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # daily at midnight UTC
+  workflow_dispatch:
+    inputs:
+      direction:
+        description: 'Sync direction (auto detects if left empty)'
+        required: false
+        type: choice
+        options:
+          - auto
+          - edu-to-db
+          - db-to-edu
+        default: auto
+
+jobs:
+  detect-and-sync:
+    name: Detect drift & open PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AfroEdu
+        uses: actions/checkout@v4
+        with:
+          repository: Shinni-Technolgies/AfroEdu
+          token: ${{ secrets.REPO_SYNC_TOKEN }}
+          path: afroedu
+
+      - name: Checkout AfroEdu-db
+        uses: actions/checkout@v4
+        with:
+          repository: Shinni-Technolgies/AfroEdu-db
+          token: ${{ secrets.REPO_SYNC_TOKEN }}
+          path: afroedu-db
+
+      - name: Check for differences
+        id: diff
+        run: |
+          EDU_DIR="afroedu/migrations"
+          DB_DIR="afroedu-db/migrations"
+
+          # Handle missing directories gracefully
+          if [ ! -d "$EDU_DIR" ] && [ ! -d "$DB_DIR" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "Neither repo has a migrations folder yet."
+            exit 0
+          fi
+
+          if diff -rq "$EDU_DIR" "$DB_DIR" > /dev/null 2>&1; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "::group::Diff details"
+            diff -rq "$EDU_DIR" "$DB_DIR" || true
+            echo "::endgroup::"
+          fi
+
+      # ── AfroEdu → AfroEdu-db ────────────────────────────────────────────
+      - name: Sync migrations → AfroEdu-db
+        if: >-
+          steps.diff.outputs.has_changes == 'true' &&
+          (inputs.direction == 'edu-to-db' || inputs.direction == 'auto' || inputs.direction == '')
+        run: |
+          cd afroedu-db
+          rm -rf migrations
+          cp -r ../afroedu/migrations .
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="sync/migrations-from-afroedu"
+          git checkout -B "$BRANCH"
+          git add migrations/
+          git diff --cached --quiet && echo "AfroEdu-db already matches AfroEdu" && exit 0
+          git commit -m "sync: update migrations from AfroEdu"
+          git push -f origin "$BRANCH"
+
+      - name: Open or update PR in AfroEdu-db
+        if: >-
+          steps.diff.outputs.has_changes == 'true' &&
+          (inputs.direction == 'edu-to-db' || inputs.direction == 'auto' || inputs.direction == '')
+        env:
+          GH_TOKEN: ${{ secrets.REPO_SYNC_TOKEN }}
+        run: |
+          cd afroedu-db
+          # Skip if the previous step found no effective changes
+          git branch --list "sync/migrations-from-afroedu" | grep -q . || exit 0
+          EXISTING=$(gh pr list --head "sync/migrations-from-afroedu" \
+                      --json number --jq '.[0].number // empty')
+          if [ -z "$EXISTING" ]; then
+            gh pr create \
+              --title "sync: update migrations from AfroEdu" \
+              --body "Automated sync of the \`migrations/\` folder from [AfroEdu](https://github.com/Shinni-Technolgies/AfroEdu)." \
+              --head "sync/migrations-from-afroedu" \
+              --base main
+          else
+            echo "PR #$EXISTING already exists – branch was force-pushed with latest changes."
+          fi
+
+      # ── AfroEdu-db → AfroEdu ────────────────────────────────────────────
+      - name: Sync migrations ← AfroEdu-db
+        if: >-
+          steps.diff.outputs.has_changes == 'true' &&
+          (inputs.direction == 'db-to-edu' || inputs.direction == 'auto' || inputs.direction == '')
+        run: |
+          cd afroedu
+          rm -rf migrations
+          cp -r ../afroedu-db/migrations .
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="sync/migrations-from-afroedu-db"
+          git checkout -B "$BRANCH"
+          git add migrations/
+          git diff --cached --quiet && echo "AfroEdu already matches AfroEdu-db" && exit 0
+          git commit -m "sync: update migrations from AfroEdu-db"
+          git push -f origin "$BRANCH"
+
+      - name: Open or update PR in AfroEdu
+        if: >-
+          steps.diff.outputs.has_changes == 'true' &&
+          (inputs.direction == 'db-to-edu' || inputs.direction == 'auto' || inputs.direction == '')
+        env:
+          GH_TOKEN: ${{ secrets.REPO_SYNC_TOKEN }}
+        run: |
+          cd afroedu
+          # Skip if the previous step found no effective changes
+          git branch --list "sync/migrations-from-afroedu-db" | grep -q . || exit 0
+          EXISTING=$(gh pr list --head "sync/migrations-from-afroedu-db" \
+                      --json number --jq '.[0].number // empty')
+          if [ -z "$EXISTING" ]; then
+            gh pr create \
+              --title "sync: update migrations from AfroEdu-db" \
+              --body "Automated sync of the \`migrations/\` folder from [AfroEdu-db](https://github.com/Shinni-Technolgies/AfroEdu-db)." \
+              --head "sync/migrations-from-afroedu-db" \
+              --base main
+          else
+            echo "PR #$EXISTING already exists – branch was force-pushed with latest changes."
+          fi
