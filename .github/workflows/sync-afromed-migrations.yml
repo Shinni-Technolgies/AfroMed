@@ -1,0 +1,147 @@
+# Keeps the /migrations folder in sync between AfroMed and AfroMed-db.
+#
+# • push to main (migrations changed) → opens a PR in AfroMed-db
+# • schedule / manual trigger         → opens a PR in AfroMed
+#
+# Required secret: REPO_SYNC_TOKEN – a GitHub PAT (classic or fine-grained)
+# with read/write access to both Shinni-Technolgies/AfroMed and
+# Shinni-Technolgies/AfroMed-db (contents + pull-requests scopes).
+
+name: Sync AfroMed ↔ AfroMed-db Migrations
+
+on:
+  push:
+    branches: [main]
+    paths: ['migrations/**']
+  schedule:
+    - cron: '0 0 * * *' # daily at midnight UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # ── Push direction: AfroMed → AfroMed-db ──────────────────────────────
+  sync-to-db:
+    name: Sync migrations → AfroMed-db
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AfroMed
+        uses: actions/checkout@v4
+        with:
+          path: afromed
+
+      - name: Checkout AfroMed-db
+        uses: actions/checkout@v4
+        with:
+          repository: Shinni-Technolgies/AfroMed-db
+          token: ${{ secrets.REPO_SYNC_TOKEN }}
+          path: afromed-db
+
+      - name: Check for differences
+        id: diff
+        run: |
+          if diff -rq afromed/migrations afromed-db/migrations > /dev/null 2>&1; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Copy migrations & push branch
+        if: steps.diff.outputs.has_changes == 'true'
+        run: |
+          cd afromed-db
+          rm -rf migrations
+          cp -r ../afromed/migrations .
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="sync/migrations-from-afromed"
+          git checkout -B "$BRANCH"
+          git add migrations/
+          git diff --cached --quiet && echo "No effective changes" && exit 0
+          git commit -m "sync: update migrations from AfroMed"
+          git push -f origin "$BRANCH"
+
+      - name: Open or update PR in AfroMed-db
+        if: steps.diff.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.REPO_SYNC_TOKEN }}
+        run: |
+          cd afromed-db
+          EXISTING=$(gh pr list --head "sync/migrations-from-afromed" \
+                      --json number --jq '.[0].number // empty')
+          if [ -z "$EXISTING" ]; then
+            gh pr create \
+              --title "sync: update migrations from AfroMed" \
+              --body "Automated sync of the \`migrations/\` folder from [AfroMed](https://github.com/Shinni-Technolgies/AfroMed).
+
+          Triggered by commit ${{ github.sha }}." \
+              --head "sync/migrations-from-afromed" \
+              --base main
+          else
+            echo "PR #$EXISTING already exists – branch was force-pushed with latest changes."
+          fi
+
+  # ── Pull direction: AfroMed-db → AfroMed ──────────────────────────────
+  sync-from-db:
+    name: Sync migrations ← AfroMed-db
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout AfroMed
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.REPO_SYNC_TOKEN }}
+          path: afromed
+
+      - name: Checkout AfroMed-db
+        uses: actions/checkout@v4
+        with:
+          repository: Shinni-Technolgies/AfroMed-db
+          path: afromed-db
+
+      - name: Check for differences
+        id: diff
+        run: |
+          if diff -rq afromed/migrations afromed-db/migrations > /dev/null 2>&1; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Copy migrations & push branch
+        if: steps.diff.outputs.has_changes == 'true'
+        run: |
+          cd afromed
+          rm -rf migrations
+          cp -r ../afromed-db/migrations .
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="sync/migrations-from-afromed-db"
+          git checkout -B "$BRANCH"
+          git add migrations/
+          git diff --cached --quiet && echo "No effective changes" && exit 0
+          git commit -m "sync: update migrations from AfroMed-db"
+          git push -f origin "$BRANCH"
+
+      - name: Open or update PR in AfroMed
+        if: steps.diff.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.REPO_SYNC_TOKEN }}
+        run: |
+          cd afromed
+          EXISTING=$(gh pr list --head "sync/migrations-from-afromed-db" \
+                      --json number --jq '.[0].number // empty')
+          if [ -z "$EXISTING" ]; then
+            gh pr create \
+              --title "sync: update migrations from AfroMed-db" \
+              --body "Automated sync of the \`migrations/\` folder from [AfroMed-db](https://github.com/Shinni-Technolgies/AfroMed-db).
+
+          Triggered by scheduled/manual workflow run." \
+              --head "sync/migrations-from-afromed-db" \
+              --base main
+          else
+            echo "PR #$EXISTING already exists – branch was force-pushed with latest changes."
+          fi
